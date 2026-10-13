@@ -1,107 +1,36 @@
-# SquatWatch — Domain Impersonation Detector
-> SE Computer Engineering · Cybersecurity Project  
-> Clone of haveibeensquatted.com
+# SquatDetect — Domain Impersonation Detection Tool
 
----
+SquatDetect is a cybersecurity project designed to identify potential domain impersonation by generating lookalike domains and analyzing their DNS records and risk scores.
 
 ## Architecture
 
-```
-squatdetector/
-├── backend/
-│   ├── main.py            ← FastAPI app (Permutation + Detection + Scoring engines)
-│   └── requirements.txt
-└── frontend/
-    └── index.html         ← Single-file dashboard (no build step needed)
-```
-
----
-
-## Quick Start
-
-### 1. Install & run the backend
-
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-
-### 2. Open the frontend
-
-Open `frontend/index.html` directly in your browser (double-click or `open frontend/index.html`).
-
-> No build step, no npm, no framework — pure HTML/CSS/JS.
-
----
+- **Backend:** Python and FastAPI
+- **Frontend:** HTML, CSS, and JavaScript
+- **Detection:** Domain permutation and DNS analysis
+- **Risk Analysis:** Risk scoring and threat classification
 
 ## How It Works
 
-### Phase 1 — Permutation Engine (`generate_permutations`)
-For a given domain (e.g. `paypal.com`) the engine generates lookalike variants using:
+1. **Domain Permutation:** Generates variations using techniques such as typosquatting, homoglyphs, and combosquatting.
+2. **DNS Detection:** Checks domain availability and DNS records, including A, AAAA, and MX records.
+3. **Risk Scoring:** Assigns risk scores based on DNS results and attack characteristics.
+4. **Dashboard:** Displays scan results for analysis.
 
-| Attack Type       | Example                    | Description                            |
-|-------------------|----------------------------|----------------------------------------|
-| Typosquatting     | `paupal.com`               | Adjacent QWERTY key substitution       |
-| Missing Letter    | `paypl.com`                | One character removed                  |
-| Repeated Letter   | `payppal.com`              | One character doubled                  |
-| Transposition     | `papyal.com`               | Two adjacent chars swapped             |
-| Homoglyph / IDN   | `pаypаl.com` (Cyrillic а)  | Visually identical Unicode substitution|
-| Combosquatting    | `paypal-login.com`         | Appended/prepended keywords            |
-| TLD Swap          | `paypal.net`               | Different top-level domain             |
-| Hyphenation       | `pay-pal.com`              | Hyphen inserted                        |
-| Bitsquatting      | `qaypal.com`               | Single bit flipped in ASCII code       |
+## Technologies Used
 
-### Phase 2 — Detection Engine (`check_domain`)
-Each variant is checked in parallel (30 threads) for:
-- **A / AAAA DNS record** → Is the domain live?
-- **MX record** → Is it receiving email? (high phishing signal)
+- Python
+- FastAPI
+- HTML, CSS, JavaScript
+- DNS resolution
+- Git and GitHub
 
-### Phase 3 — Risk Scoring (`compute_risk`)
-Score 0–100 based on:
-- DNS live: +50
-- MX present: +30
-- Attack type severity weight: +2 to +15
+## Project Objective
 
-### Phase 4 — Streaming Dashboard
-Results stream in real-time via NDJSON over HTTP.  
-Frontend shows:
-- Live progress bar
-- Stats cards (live / MX / unregistered)
-- Filterable, searchable table with risk badges
+To help identify suspicious lookalike domains that could be used for phishing or brand impersonation.
 
----
+## Future Enhancements
 
-## Milestone Roadmap (extend this project)
-
-| Milestone | Feature |
-|-----------|---------|
-| ✅ M1 | Permutation engine + DNS scanning |
-| ✅ M2 | FastAPI backend with streaming |
-| ✅ M3 | Live dashboard frontend |
-| 🔲 M4 | VirusTotal / PhishTank API integration |
-| 🔲 M5 | WHOIS registration date lookup |
-| 🔲 M6 | Screenshot similarity (Playwright + SSIM) |
-| 🔲 M7 | PostgreSQL result caching |
-| 🔲 M8 | Export CSV / PDF report |
-
----
-
-## API Reference
-
-### `POST /scan`
-```json
-{ "domain": "paypal.com" }
-```
-Returns: NDJSON stream of:
-```
-{"type":"meta","total":843,"domain":"paypal.com"}
-{"type":"result","domain":"paupal.com","attack_type":"Typosquatting","dns":false,"ip":null,"mx":false,"risk_score":5,"index":1}
-...
-{"type":"done","total":843}
-```
-
-### `GET /health`
-```json
-{ "status": "ok" }
-```
+- Integration with threat intelligence APIs
+- WHOIS registration information
+- Exportable scan reports
+- Improved domain risk analysis
